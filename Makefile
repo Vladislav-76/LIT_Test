@@ -20,3 +20,20 @@ dev-rebuild:
     -e POSTGRES_PASSWORD=$(DEV_DB_PASSWORD) \
 	-e POSTGRES_DB=$(DEV_DB_NAME) \
     postgres:14-alpine
+
+dev-web:
+	# docker network create lit-network
+
+	# docker network connect lit-network dev_db_psql
+
+	docker build -t lit_web ./
+
+	docker run --env-file .env \
+               --net lit-network \
+               --name lit_web \
+               --rm -p 8000:8000 lit_web
+
+# docker-compose up
+# docker compose exec backend python manage.py migrate
+# docker compose exec backend python manage.py collectstatic
+# docker compose exec backend cp -r /app/collected_static/. /backend_static/static/

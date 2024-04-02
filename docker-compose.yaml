@@ -1,0 +1,43 @@
+version: '3.10'
+
+volumes:
+  pg_data:
+  static:
+
+services:
+  redis:
+    image: redis
+    restart: always
+
+  worker:
+    restart: always
+    build: .
+    volumes:
+      - ./emails:/emails
+    command: ['celery', '--workdir=./task_backend_1', '--app', 'task_backend_1', 'worker']
+    depends_on:
+      - backend
+
+  db:
+    restart: always
+    image: postgres
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  backend:
+    restart: always
+    build: .
+    env_file: .env
+    volumes:
+      - static:/backend_static
+    depends_on:
+      - db
+
+  nginx:
+    restart: always
+    build: ./nginx/
+    volumes:
+      - static:/staticfiles/
+    ports:
+      - 8000:80

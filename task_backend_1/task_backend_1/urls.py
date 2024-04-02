@@ -4,12 +4,13 @@ from django.urls import include, path
 from djoser.views import UserViewSet
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from users.views import OtpActivateView, OtpUserViewSet
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/auth/user/', UserViewSet.as_view({'post': 'create'})),
-    path('api/v1/auth/user/activation/', UserViewSet.as_view({'post': 'activation'})),
+    path('api/v1/auth/user/', OtpUserViewSet.as_view({'post': 'create'})),
+    path('api/v1/auth/user/activation/', OtpActivateView.as_view()),
     path('api/v1/auth/user/me/', UserViewSet.as_view({'get': 'me', 'patch': 'me', 'delete': 'me'})),
     path('api/v1/auth/', include('djoser.urls.jwt')),
 ]

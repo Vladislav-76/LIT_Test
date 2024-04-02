@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -7,8 +8,9 @@ env = Env()
 env.read_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 
-SECRET_KEY = 'django-insecure-e3t0#5#$jz1vop(n(1$%ae&71yvqn!a!o6ja(uzn_bb)%uoh=j'
+SECRET_KEY = env.str('SECRET_KEY', 'django-insecure-e3t0#5#$jz1vop(n(1$%ae&71yvqn!a!o6ja(uzn_bb)%uoh=j')
 
 DEBUG = True
 
@@ -47,7 +49,7 @@ ROOT_URLCONF = 'task_backend_1.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(SETTINGS_PATH, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -60,6 +62,10 @@ TEMPLATES = [
     },
 ]
 
+# TEMPLATE_DIRS = (
+#     os.path.join(SETTINGS_PATH, 'templates'),
+# )
+
 WSGI_APPLICATION = 'task_backend_1.wsgi.application'
 
 
@@ -69,11 +75,11 @@ WSGI_APPLICATION = 'task_backend_1.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env.str('DB_NAME'),
-        'USER': env.str('DB_USER'),
-        'PASSWORD': env.str('DB_PASSWORD'),
-        'HOST': env.str('DB_HOST'),
-        'PORT': env.int('DB_PORT'),
+        'NAME': env.str('DB_NAME', 'lit'),
+        'USER': env.str('DB_USER', 'postgres'),
+        'PASSWORD': env.str('DB_PASSWORD', 'password'),
+        'HOST': env.str('DB_HOST', 'localhost'),
+        'PORT': env.int('DB_PORT', '5432'),
         'OPTIONS': {'sslmode': env.str('DB_SSLMODE', 'disable')},
     }
     # 'default': {
@@ -110,10 +116,10 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     "LOGIN_FIELD": "email",
+    'SEND_ACTIVATION_EMAIL': True,
     "USERNAME_CHANGED_EMAIL_CONFIRMATION": False,
     "SET_PASSWORD_RETYPE": True,
-    "ACTIVATION_URL": False,
-    'FIELDS_TO_UPDATE': ('first_name', 'last_name'),
+    'ACTIVATION_URL': 'activate/{uid}/{token}/',
 }
 
 SIMPLE_JWT = {
@@ -123,6 +129,9 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
+
+OTP_LENTH = 6
+OTP_LIFETIME = timedelta(minutes=5)
 
 
 # Internationalization
@@ -144,6 +153,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = BASE_DIR / 'collected_static'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -151,3 +162,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'emails'
+
+CELERY_BROKER_URL = 'redis://redis:6379'
