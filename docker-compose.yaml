@@ -14,9 +14,10 @@ services:
     build: .
     volumes:
       - ./emails:/emails
-    command: ['celery', '--workdir=./task_backend_1', '--app', 'task_backend_1', 'worker']
+    command: ['celery', '--workdir=./', '--app', 'task_backend_1', 'worker']
     depends_on:
       - backend
+      - redis
 
   db:
     restart: always
@@ -33,6 +34,7 @@ services:
       - static:/backend_static
     depends_on:
       - db
+      - nginx
 
   nginx:
     restart: always

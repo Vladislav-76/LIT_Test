@@ -11,7 +11,7 @@ from pyotp import random_base32, TOTP
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-# from templated_mail.mail import BaseEmailMessage
+from templated_mail.mail import BaseEmailMessage
 from users import tasks
 from users.serializers import OtpSerializer
 
@@ -19,29 +19,13 @@ from users.serializers import OtpSerializer
 User = get_user_model()
 
 
-# class ActivationEmail(BaseEmailMessage):
-#     template_name = 'otp_activation.html'
-
-#     def get_context_data(self):
-#         # context = super().get_context_data()
-#         # user = context.get("user")
-#         # otp_code = TOTP(random_base32(), digits=settings.OTP_LENTH).now()
-#         # user.otp_code = make_password(otp_code)
-#         # user.otp_created = timezone.now()
-#         # user.save()
-#         # context['otp_code'] = otp_code
-#         return super().get_context_data()
-
-
 class OtpUserViewSet(UserViewSet):
     def perform_create(self, serializer, *args, **kwargs):
         user = serializer.save(*args, **kwargs)
         signals.user_registered.send(sender=self.__class__, user=user, request=self.request)
         otp_code = self.get_otp_code(user)
-        context = {'user': user, 'otp_code': otp_code}
         to = [get_user_email(user)]
-        tasks.send_otp_activation.delay(self.request, context, to)
-        # ActivationEmail(self.request, context).send(to)
+        tasks.send_otp_activation.delay(self.get_context(self.request, otp_code), to)
 
     @staticmethod
     def get_otp_code(user):
@@ -50,6 +34,15 @@ class OtpUserViewSet(UserViewSet):
         user.otp_created = timezone.now()
         user.save()
         return otp_code
+
+    @staticmethod
+    def get_context(request, otp_code):
+        email = BaseEmailMessage(request)
+        context = email.get_context_data()
+        context.pop('view', None)
+        context.pop('user', None)
+        context.update({'otp_code': otp_code, 'template_name': settings.OTP_EMAIL_TEMPLATE})
+        return context
 
 
 class OtpActivateView(APIView):

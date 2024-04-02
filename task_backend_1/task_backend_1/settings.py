@@ -16,9 +16,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -30,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'celeryapp',
     'users.apps.UsersConfig',
 
 ]
@@ -62,15 +60,7 @@ TEMPLATES = [
     },
 ]
 
-# TEMPLATE_DIRS = (
-#     os.path.join(SETTINGS_PATH, 'templates'),
-# )
-
 WSGI_APPLICATION = 'task_backend_1.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -82,16 +72,9 @@ DATABASES = {
         'PORT': env.int('DB_PORT', '5432'),
         'OPTIONS': {'sslmode': env.str('DB_SSLMODE', 'disable')},
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
 }
 
 AUTH_USER_MODEL = "users.User"
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -132,10 +115,7 @@ SIMPLE_JWT = {
 
 OTP_LENTH = 6
 OTP_LIFETIME = timedelta(minutes=5)
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
+OTP_EMAIL_TEMPLATE = 'otp_activation.html'
 
 LANGUAGE_CODE = 'en-us'
 
@@ -147,16 +127,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / 'collected_static'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
