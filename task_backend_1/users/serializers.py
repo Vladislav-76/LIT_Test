@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 
 class OtpCode(serializers.Field):
+    """Custom serializer field class"""
+
     def to_internal_value(self, value):
         if not value.isnumeric():
             raise serializers.ValidationError('All characters must be digits')
@@ -15,5 +17,7 @@ class OtpCode(serializers.Field):
 
 
 class OtpSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField(min_value=1)
+    """OTP-code obtain serializer"""
+
+    email = serializers.EmailField()
     otp_code = OtpCode()

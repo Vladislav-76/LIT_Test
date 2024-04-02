@@ -21,6 +21,8 @@ User = get_user_model()
 
 class OtpUserViewSet(UserViewSet):
     def perform_create(self, serializer, *args, **kwargs):
+        """Custom POST User method with sending email with OTP-code"""
+
         user = serializer.save(*args, **kwargs)
         signals.user_registered.send(sender=self.__class__, user=user, request=self.request)
         otp_code = self.get_otp_code(user)
@@ -29,6 +31,8 @@ class OtpUserViewSet(UserViewSet):
 
     @staticmethod
     def get_otp_code(user):
+        """Method for generating and saving the otp code and the time it was created"""
+
         otp_code = TOTP(random_base32(), digits=settings.OTP_LENTH).now()
         user.otp_code = make_password(otp_code)
         user.otp_created = timezone.now()
@@ -37,6 +41,8 @@ class OtpUserViewSet(UserViewSet):
 
     @staticmethod
     def get_context(request, otp_code):
+        """Getting context for email template filling"""
+
         email = BaseEmailMessage(request)
         context = email.get_context_data()
         context.pop('view', None)
@@ -46,6 +52,8 @@ class OtpUserViewSet(UserViewSet):
 
 
 class OtpActivateView(APIView):
+    """User activation, only POST"""
+
     @swagger_auto_schema(
         operation_description='Set User is_active if OTP is valid',
         request_body=OtpSerializer,
@@ -54,7 +62,7 @@ class OtpActivateView(APIView):
     def post(self, request):
         serializer = OtpSerializer(data=request.data)
         if serializer.is_valid():
-            user = get_object_or_404(User, id=request.data['user_id'])
+            user = get_object_or_404(User, email=request.data['email'])
             otp_is_valid = check_password(request.data['otp_code'], user.otp_code)
             otp_expired = user.otp_created + settings.OTP_LIFETIME < timezone.now()
             if otp_is_valid and not otp_expired:
