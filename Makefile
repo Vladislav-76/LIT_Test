@@ -4,13 +4,6 @@ ADMIN_USER_PS = 123
 ADMIN_FIRST_NAME = admin
 ADMIN_LAST_NAME = admin
 
-# docker-compose up
-# docker compose exec backend python manage.py migrate
-# docker compose exec backend python manage.py collectstatic
-# docker compose exec backend cp -r /app/collected_static/. /backend_static/static/
-# docker compose exec worker ls emails
-# docker compose exec worker head -n20 emails/20240402-162130-139799482503936.log
-
 up:
 	docker compose up --build
 
