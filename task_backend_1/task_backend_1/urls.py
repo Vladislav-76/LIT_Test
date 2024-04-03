@@ -6,7 +6,6 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from users.views import OtpActivateView, OtpUserViewSet
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/auth/user/', OtpUserViewSet.as_view({'post': 'create'})),

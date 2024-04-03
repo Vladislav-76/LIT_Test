@@ -7,14 +7,13 @@ from djoser import signals
 from djoser.compat import get_user_email
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from pyotp import random_base32, TOTP
+from pyotp import TOTP, random_base32
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from templated_mail.mail import BaseEmailMessage
 from users import tasks
 from users.serializers import OtpSerializer
-
 
 User = get_user_model()
 
