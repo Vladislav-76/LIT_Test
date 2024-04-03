@@ -1,58 +1,58 @@
 # LIT_Test_Backend
 
-Это проект, который включает в себя создание RESTful API с Django.  
-Aутентификацию и авторизацию с дополнительным подтверждением пользователя OTP-кодом. Настройку Celery, Redis для очередей сообщений.
+This is a project that involves creating a RESTful API with Django.  
+Authentication and authorization with additional user confirmation with an OTP code. Configuring Celery, Redis for message queues.
 
 ------------
 
-#### Разворачиваем проект.
-Проект настроен для простой локальной установки в Docker контейнерах.
-После клонирования проекта можно создать .env файл из .env.sample с настройками отличными от дефолтных.  
-Команда для сборки и запуска контейнеров.  
+#### Deploying the project.
+The project is configured for easy local installation in Docker containers.  
+After cloning the project, you can create an .env file from .env.sample to make settings different from the default ones.  
+Command for building and running containers.  
 `make up`
 
-Запустится пять контейнеров:
+Five containers will be launched:
 1. db (Postgress)
 2. nginx
 3. backend
 4. worker
 5. redis
 
-Команда для выполнения миграций, сбора статики и создания суперюзера (email: admin@test.com, пароль: 123).  
+Command for performing migrations, collecting statics and creating a superuser (email: admin@test.com, password: 123).  
 `make build`
 
-Проект работает на следующих адресах:  
-Админка: http://localhost:8000/admin/  
-Документация API: http://localhost:8000/swagger/
+Project addresses:  
+Admin: http://localhost:8000/admin/  
+API documentation: http://localhost:8000/swagger/
 
 ------------
-#### Описание API для управления пользователями и авторизации.  
-Для упрощения использования API в проекте находится Postman-коллекция в которой собраны основные эндпойнты с образцами тел запросов.
+#### API description for user management and authorization.  
+The project contains the Postman collection that contains the main endpoints with sample request bodies to test endpoints easier.
  
 ##### Создание пользователя
-Создание пользователя производится POST-запросом по адресу:  
+A user is created using a POST request to the address:  
 http://localhost:8000/api/v1/auth/user/
-Создается неактивный пользователь. На указанную при регистрации почту отправляется письмо с OTP-кодом для подтверждения и активации пользователя.
-Отправка письма эмулирована. Письмо сохраняется в папку emails контейнера worker.  
-Команда просмотра содержимого папки emails:  
+An inactive user is created. A letter with an OTP code is sent to the email address specified during registration to confirm and activate the user.
+Sending a letter is emulated. The letter is saved to the emails folder of the worker container.  
+Command to view folder emails:  
 `docker compose exec worker ls emails`  
-Команда просмотра письма (название файла заменить на корректное):  
+Command to view the letter (replace the file name with the correct one):  
 `docker compose exec worker head -n20 emails/20240402-162130-139799482503936.log`
  
-##### Активация пользователя
-Активация пользователя производится POST-запросом по адресу:  
+##### User activation
+User activation is performed by a POST request to the address:  
 http://localhost:8000/api/v1/auth/user/activation/  
-Время жизни кода полученного в письме ограничено соответствующим параметром в настройках проекта.  
-При валидном сочетании почты пользователя, кода и времени происходит активация пользователя. В обратном случае возвращается статус 400, дополнительной информации не сообщается из соображений секьюрности.
+The lifetime of the code received in a letter is limited by the parameter in the project settings.  
+If the combination of the user's email code and time is valid the user is activated. Otherwise status 400 is returned. No additional information is provided for security reasons.
  
-##### Получение токена
-Получение возможно только после активации. Получение токена производится POST-запросом по адресу:  
+##### Receiving a token
+Receiving a token is possible only after activation. The token is received using a POST request to the address:  
 http://localhost:8000/api/v1/auth/jwt/create/
  
-##### Управление пользователем
-Управление требует авторизации с использованием JWT-токена. Управление осуществляется по адресу:  
+##### User management
+User management requires authorization using a JWT token. Management is carried out at the address:  
 http://localhost:8000/api/v1/auth/user/me/  
-Реализованы:
-- просмотр данных пользователя (GET-запрос)
-- изменение данных пользователя (PATCH-запрос)
-- удаление пользователя (DELETE-запрос)
+Implemented:
+- view user data (GET)
+- changing user data (PATCH)
+- deleting a user (DELETE)
