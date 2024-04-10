@@ -29,7 +29,7 @@ API documentation: http://localhost:8000/swagger/
 #### API description for user management and authorization.  
 The project contains the Postman collection that contains the main endpoints with sample request bodies to test endpoints easier.
  
-##### Создание пользователя
+##### User creation
 A user is created using a POST request to the address:  
 http://localhost:8000/api/v1/auth/user/
 An inactive user is created. A letter with an OTP code is sent to the email address specified during registration to confirm and activate the user.
@@ -43,10 +43,15 @@ Command to view the letter (replace the file name with the correct one):
 User activation is performed by a POST request to the address:  
 http://localhost:8000/api/v1/auth/user/activation/  
 The lifetime of the code received in a letter is limited by the parameter in the project settings.  
-If the combination of the user's email code and time is valid the user is activated. Otherwise status 400 is returned. No additional information is provided for security reasons.
- 
+If the combination of the user's email, code and time is valid the user is activated. Otherwise status 400 is returned. No additional information is provided for security reasons.
+
+##### OTP refresh
+You can receive a new OTP code at any time with a POST request:
+http://localhost:8000/api/v1/auth/user/otp/
+A letter with an OTP code is sent by email, old code now is invalid.
+
 ##### Receiving a token
-Receiving a token is possible only after activation. The token is received using a POST request to the address:  
+Receiving a token is possible only after activation. The token is received using a POST request to the address with the combination of the user's email and OTP code:  
 http://localhost:8000/api/v1/auth/jwt/create/
  
 ##### User management
